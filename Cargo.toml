@@ -1,5 +1,8 @@
 [workspace]
 resolver = "2"
-members = [ "common",
-    "day-1", "day-2",
+members = [
+    "common",
+    "day-01",
+    "day-02",
+    "day-03",
 ]
