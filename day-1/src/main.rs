@@ -1,17 +1,7 @@
 use std::collections::HashMap;
 
-use common::input;
-
 fn main() {
-    let input = input();
-
-    // part 1
-    let distance = part1(&input);
-    println!("part 1:\t{distance}");
-
-    // part 2
-    let score = part2(&input);
-    println!("part 2:\t{score}");
+    common::run(part1, part2);
 }
 
 fn parse_input(input: &str) -> (Vec<i32>, Vec<i32>) {

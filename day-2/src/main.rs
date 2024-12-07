@@ -1,18 +1,17 @@
-use common::input;
 use itertools::Itertools;
+
+fn main() {
+    common::run_with_parser(|input| parse_input(&input), part1, part2);
+}
 
 struct Input {
     reports: Vec<Vec<i32>>,
 }
 
-fn main() {
-    let input = parse_input(&input());
-
-    // part 1
-    println!("part 1: {}", part1(&input));
-
-    // part 2
-    println!("part 2: {}", part2(&input));
+impl AsRef<Input> for Input {
+    fn as_ref(&self) -> &Input {
+        self
+    }
 }
 
 fn parse_input(input: &str) -> Input {
