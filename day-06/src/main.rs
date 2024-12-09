@@ -237,6 +237,9 @@ fn part2(input: &Input) -> usize {
             Step::Loop | Step::Stop => break,
             Step::Turned => {}
             Step::Walked => {
+                if main_guard.pos == initial_guard.pos {
+                    continue;
+                }
                 *sub_board.get_mut(main_guard.pos).unwrap() = Cell::Obstacle;
                 if sub_guard.visit(&mut sub_board).looped {
                     obstructions.insert(main_guard.pos);
