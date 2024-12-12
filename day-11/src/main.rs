@@ -1,53 +1,11 @@
-use std::fmt::Display;
+use std::collections::HashMap;
 
 fn main() {
     common::run_with_parser(
         |text| parse_input(&text),
         |numbers| simulate(numbers, 25),
-        |_: &[u64]| "nothing yet",
+        |numbers| simulate(numbers, 75),
     );
-}
-
-struct Numbers {
-    head: Option<Box<Node>>,
-}
-
-struct Node {
-    value: u64,
-    next: Option<Box<Node>>,
-}
-
-impl Numbers {
-    fn len(&self) -> usize {
-        let mut cursor = &self.head;
-        let mut len = 0;
-        while let Some(ref node) = cursor {
-            len += 1;
-            cursor = &node.next;
-        }
-        len
-    }
-}
-
-impl Display for Numbers {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut cursor = &self.head;
-        while let Some(ref node) = cursor {
-            write!(f, "{} ", node.value)?;
-            cursor = &node.next;
-        }
-        Ok(())
-    }
-}
-
-impl Drop for Node {
-    fn drop(&mut self) {
-        // recursion might be overflow the stack
-        let mut cursor = self.next.take();
-        while let Some(mut node) = cursor {
-            cursor = node.next.take();
-        }
-    }
 }
 
 fn parse_input(input: &str) -> Vec<u64> {
@@ -59,67 +17,60 @@ fn parse_input(input: &str) -> Vec<u64> {
 }
 
 fn simulate(input: &[u64], steps: u32) -> usize {
-    let mut numbers = Numbers { head: None };
-    let mut tail = &mut numbers.head;
-    for &num in input {
-        tail = &mut tail
-            .insert(Box::new(Node {
-                value: num,
-                next: None,
-            }))
-            .next;
+    let mut previous: HashMap<u64, usize> = HashMap::new();
+    let mut input = input.to_vec();
+    input.sort();
+    let mut now: HashMap<u64, usize> = input
+        .chunk_by(|a, b| a == b)
+        .map(|chunk| (chunk[0], chunk.len()))
+        .collect();
+
+    for (number, &occurences) in now.iter() {
+        for _ in 0..occurences {
+            eprint!("{number} ");
+        }
+    }
+    eprintln!();
+
+    for _ in 0..steps {
+        (previous, now) = (now, previous);
+
+        assert_ne!(previous.len(), 0);
+        assert_eq!(now.len(), 0);
+
+        for (number, occurences) in previous.drain() {
+            let (a, b) = step_number(number);
+            *now.entry(a).or_insert(0) += occurences;
+            if let Some(b) = b {
+                *now.entry(b).or_insert(0) += occurences;
+            }
+        }
     }
 
-    for i in 0..steps {
-        eprintln!("running step {i}... (len = {})", numbers.len());
-        step(&mut numbers);
-    }
-
-    numbers.len()
+    now.values().sum()
 }
 
-fn step(numbers: &mut Numbers) {
-    let mut cursor = &mut numbers.head;
-    while let Some(ref mut node) = cursor {
-        cursor = step_number(node);
-    }
-}
-
-fn step_number(node: &mut Node) -> &mut Option<Box<Node>> {
-    if node.value == 0 {
-        node.value = 1;
-        return &mut node.next;
+fn step_number(number: u64) -> (u64, Option<u64>) {
+    if number == 0 {
+        return (1, None);
     }
 
-    let mut n = 0;
-    let mut power_10_n = 1;
-    let mut power_10_n_halfs = 1;
+    let mut power_10_n = 10;
+    let mut power_10_2n = 100;
+    let mut power_10_2n_minus_1 = 10;
     loop {
-        if (power_10_n..(power_10_n * 10)).contains(&node.value) {
-            break;
+        if power_10_2n <= number {
+            power_10_n *= 10;
+            power_10_2n *= 100;
+            power_10_2n_minus_1 *= 100;
+            continue;
         }
 
-        n += 1;
-        power_10_n *= 10;
-        if n % 2 == 1 {
-            power_10_n_halfs *= 10;
+        if power_10_2n_minus_1 <= number {
+            return (number / power_10_n, Some(number % power_10_n));
         }
-    }
 
-    if n % 2 == 1 {
-        let tail = node.next.take();
-        let tail = &mut node
-            .next
-            .insert(Box::new(Node {
-                value: node.value % power_10_n_halfs,
-                next: tail,
-            }))
-            .next;
-        node.value /= power_10_n_halfs;
-        tail
-    } else {
-        node.value *= 2024;
-        &mut node.next
+        return (number * 2024, None);
     }
 }
 
