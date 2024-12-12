@@ -5,6 +5,10 @@ use std::{
     io::{self, Read},
 };
 
+pub use array2::Array2;
+
+pub mod array2;
+
 pub fn input() -> String {
     match env::args().nth(1) {
         Some(file) => fs::read_to_string(file).expect("failed to read input file"),
