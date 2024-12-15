@@ -7,6 +7,16 @@ pub struct Array2<T> {
     height: usize,
 }
 
+impl<T> Default for Array2<T> {
+    fn default() -> Self {
+        Self {
+            data: vec![],
+            width: 0,
+            height: 0,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct UnevenRows;
 
@@ -60,6 +70,25 @@ impl<T> Array2<T> {
         let data: Vec<_> = iter::repeat_with(Default::default)
             .take(width * height)
             .collect();
+        Self {
+            data,
+            width,
+            height,
+        }
+    }
+
+    pub fn from_fn(width: usize, height: usize, mut func: impl FnMut(isize, isize) -> T) -> Self {
+        if width == 0 || height == 0 {
+            return Default::default();
+        }
+
+        let iwidth = isize::try_from(width).expect("`Array2` was too big");
+        let iheight = isize::try_from(height).expect("`Array2` was too big");
+        let data = (0..iheight)
+            .flat_map(|y| (0..iwidth).map(move |x| (x, y)))
+            .map(|(x, y)| func(x, y))
+            .collect();
+
         Self {
             data,
             width,

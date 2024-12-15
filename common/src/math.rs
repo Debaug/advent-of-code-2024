@@ -21,6 +21,13 @@ impl Pos {
         usize::try_from(self.x).ok().is_some_and(|x| x < width)
             && usize::try_from(self.y).ok().is_some_and(|y| y < height)
     }
+
+    pub fn rem_euclid(self, x: isize, y: isize) -> Self {
+        Self {
+            x: self.x.rem_euclid(x),
+            y: self.y.rem_euclid(y),
+        }
+    }
 }
 
 impl Vect {
@@ -36,6 +43,13 @@ impl Add<Vect> for Pos {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
         }
+    }
+}
+
+impl Add<Pos> for Vect {
+    type Output = Pos;
+    fn add(self, rhs: Pos) -> Self::Output {
+        rhs + self
     }
 }
 
@@ -66,6 +80,13 @@ impl Mul<Vect> for isize {
             x: self * rhs.x,
             y: self * rhs.y,
         }
+    }
+}
+
+impl Mul<isize> for Vect {
+    type Output = Vect;
+    fn mul(self, rhs: isize) -> Self::Output {
+        rhs * self
     }
 }
 
