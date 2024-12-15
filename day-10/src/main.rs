@@ -1,6 +1,6 @@
 use std::{convert::Infallible, str::FromStr, sync::Arc};
 
-use common::Array2;
+use common::array2::Array2;
 
 fn main() {
     common::run_with_parser(|text| Map::from_str(&text).unwrap(), part1, part2);

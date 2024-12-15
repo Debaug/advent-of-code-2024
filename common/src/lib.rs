@@ -5,9 +5,8 @@ use std::{
     io::{self, Read},
 };
 
-pub use array2::Array2;
-
 pub mod array2;
+pub mod math;
 
 pub fn input() -> String {
     match env::args().nth(1) {

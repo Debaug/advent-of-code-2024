@@ -1,4 +1,4 @@
-use common::Array2;
+use common::array2::Array2;
 use manager::*;
 
 mod manager;
