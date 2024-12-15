@@ -156,3 +156,9 @@ where
         Self::from_rows(rows).expect("failed to build `Array2` from rows")
     }
 }
+
+impl<T> AsRef<Array2<T>> for Array2<T> {
+    fn as_ref(&self) -> &Array2<T> {
+        self
+    }
+}
